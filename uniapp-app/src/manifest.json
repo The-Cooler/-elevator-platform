@@ -1,0 +1,28 @@
+{
+  "name": "老旧小区电梯故障报修与维保跟踪平台",
+  "appid": "",
+  "description": "电梯故障报修与维保跟踪小程序，面向业主、物业、维修员三类角色",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "app-plus": {
+    "usingComponents": true,
+    "nvueStyleCompiler": "uni-app",
+    "compilerVersion": 3
+  },
+  "quickapp": {},
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false
+    },
+    "usingComponents": true
+  },
+  "h5": {
+    "title": "电梯故障报修与维保跟踪平台",
+    "router": {
+      "mode": "hash"
+    }
+  },
+  "vueVersion": "3"
+}

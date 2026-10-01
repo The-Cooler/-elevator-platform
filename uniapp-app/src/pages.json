@@ -1,0 +1,144 @@
+{
+  "pages": [
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
+      "path": "pages/register/index",
+      "style": {
+        "navigationBarTitleText": "注册"
+      }
+    },
+    {
+      "path": "pages/home/index",
+      "style": {
+        "navigationBarTitleText": "电梯维保平台"
+      }
+    },
+    {
+      "path": "pages/report/index",
+      "style": {
+        "navigationBarTitleText": "我要报修"
+      }
+    },
+    {
+      "path": "pages/progress/list",
+      "style": {
+        "navigationBarTitleText": "报修进度"
+      }
+    },
+    {
+      "path": "pages/progress/detail",
+      "style": {
+        "navigationBarTitleText": "报修详情"
+      }
+    },
+    {
+      "path": "pages/dispatch/pending",
+      "style": {
+        "navigationBarTitleText": "待派单池"
+      }
+    },
+    {
+      "path": "pages/dispatch/assign",
+      "style": {
+        "navigationBarTitleText": "派单"
+      }
+    },
+    {
+      "path": "pages/order/list",
+      "style": {
+        "navigationBarTitleText": "报修工单"
+      }
+    },
+    {
+      "path": "pages/accept/list",
+      "style": {
+        "navigationBarTitleText": "待接单"
+      }
+    },
+    {
+      "path": "pages/process/list",
+      "style": {
+        "navigationBarTitleText": "在办工单"
+      }
+    },
+    {
+      "path": "pages/process/detail",
+      "style": {
+        "navigationBarTitleText": "维修过程"
+      }
+    },
+    {
+      "path": "pages/plan/list",
+      "style": {
+        "navigationBarTitleText": "维保计划"
+      }
+    },
+    {
+      "path": "pages/inspection/list",
+      "style": {
+        "navigationBarTitleText": "巡检任务"
+      }
+    },
+    {
+      "path": "pages/inspection/execute",
+      "style": {
+        "navigationBarTitleText": "巡检执行"
+      }
+    },
+    {
+      "path": "pages/exception/list",
+      "style": {
+        "navigationBarTitleText": "工单异常"
+      }
+    },
+    {
+      "path": "pages/analysis/index",
+      "style": {
+        "navigationBarTitleText": "统计分析"
+      }
+    },
+    {
+      "path": "pages/message/index",
+      "style": {
+        "navigationBarTitleText": "消息中心"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationBarTitleText": "个人中心"
+      }
+    }
+  ],
+  "tabBar": {
+    "color": "#6B7688",
+    "selectedColor": "#0B3D91",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/message/index",
+        "text": "消息"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的"
+      }
+    ]
+  },
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "电梯故障报修与维保跟踪平台",
+    "navigationBarBackgroundColor": "#0B3D91",
+    "backgroundColor": "#F5F7FA"
+  }
+}
