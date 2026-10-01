@@ -232,10 +232,31 @@
 
 ### 11.3 数据库脚本
 
+建库只需一个脚本，脚本内部自行建库，无需事先建库。
+
 | 脚本 | 用途 |
 | --- | --- |
-| `sql/ry_20260417.sql` | RuoYi 框架表，上游文件原样保留 |
-| `sql/quartz.sql` | Quartz 定时任务表，上游文件原样保留 |
-| `sql/elevator_schema.sql` | 本项目业务表建表脚本，含 `sys_user.community_id` 扩展与手机号唯一索引 |
-| `sql/elevator_data.sql` | 初始化数据：角色、菜单权限、字典、业务基础数据、演示账号、定时任务注册 |
-| `sql/elevator_upgrade.sql` | 已建库的升级脚本，补 `community_id`、手机号唯一索引、注册三个定时任务 |
+| `sql/elevator_init.sql` | 唯一建库脚本，一条命令建出完整数据库 |
+
+执行方式：
+
+```
+cd backend/sql
+mysql -uroot -p < elevator_init.sql
+```
+
+脚本分五章，可重复执行，重复执行不会报错：
+
+| 章 | 内容 |
+| --- | --- |
+| 第 1 章 | 建库 `elevator`，字符集 utf8mb4 |
+| 第 2 章 | 若依框架表 14 张（用户、角色、菜单、字典、参数、日志、定时任务、公告） |
+| 第 3 章 | Quartz 定时任务调度表 11 张 |
+| 第 4 章 | 电梯业务表 19 张 |
+| 第 5 章 | 初始化数据：角色、菜单权限、字典、演示账号、业务基础数据、定时任务 |
+
+脚本对上游 RuoYi 框架做了以下改动，均以论文 3.2.2 节为依据：
+
+- 剔除部门表 `sys_dept`、岗位表 `sys_post`、角色部门关联 `sys_role_dept`、用户岗位关联 `sys_user_post`、代码生成器表 `gen_table` 与 `gen_table_column`，共 6 张表及其全部初始化数据与菜单
+- 移除 `sys_user.dept_id`、`sys_role.dept_check_strictly`、`sys_oper_log.dept_name` 三个列
+- `sys_user` 增加 `community_id`（论文表3-1 要求）并加手机号唯一索引 `uk_user_phonenumber`
