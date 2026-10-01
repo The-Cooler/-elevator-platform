@@ -441,7 +441,7 @@ create table elevator_notice (
 SET @exist := (SELECT COUNT(*) FROM information_schema.COLUMNS
                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_user' AND COLUMN_NAME = 'community_id');
 SET @sql := IF(@exist = 0,
-  'ALTER TABLE sys_user ADD COLUMN community_id bigint(20) DEFAULT NULL COMMENT ''所属小区ID'' AFTER dept_id',
+  'ALTER TABLE sys_user ADD COLUMN community_id bigint(20) DEFAULT NULL COMMENT ''所属小区ID''',
   'SELECT ''sys_user.community_id 已存在'' AS msg');
 PREPARE stmt FROM @sql;
 EXECUTE stmt;

@@ -204,42 +204,42 @@ delete from sys_user_role where user_id in (100, 101, 102, 103, 104);
 delete from sys_user where user_id in (100, 101, 102, 103, 104);
 
 insert into sys_user
-  (user_id, dept_id, community_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
+  (user_id, community_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
    status, del_flag, login_ip, login_date, pwd_update_date, create_by, create_time, remark)
 values
-  (100, 103, 1, 'wuye01', '物业管理员', '00', 'wuye01@elevator.com', '13800000001', '1', '',
+  (100, 1, 'wuye01', '物业管理员', '00', 'wuye01@elevator.com', '13800000001', '1', '',
    '$2a$10$gyEgAsudVRZUUksP49d6geVDVNz6W5gWBdzlJ7ssKxdf07z1XwRIi',
    '0', '0', '127.0.0.1', sysdate(), sysdate(), 'admin', sysdate(), '阳光家园小区物业管理员');
 
 insert into sys_user
-  (user_id, dept_id, community_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
+  (user_id, community_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
    status, del_flag, login_ip, login_date, pwd_update_date, create_by, create_time, remark)
 values
-  (101, 103, 1, 'weixiu01', '维修员王师傅', '00', 'weixiu01@elevator.com', '13800000002', '1', '',
+  (101, 1, 'weixiu01', '维修员王师傅', '00', 'weixiu01@elevator.com', '13800000002', '1', '',
    '$2a$10$gyEgAsudVRZUUksP49d6geVDVNz6W5gWBdzlJ7ssKxdf07z1XwRIi',
    '0', '0', '127.0.0.1', sysdate(), sysdate(), 'admin', sysdate(), '黑龙江安捷电梯维保有限公司，负责阳光家园小区');
 
 insert into sys_user
-  (user_id, dept_id, community_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
+  (user_id, community_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
    status, del_flag, login_ip, login_date, pwd_update_date, create_by, create_time, remark)
 values
-  (102, 103, 1, 'yezhu01', '业主张阿姨', '00', 'yezhu01@elevator.com', '13800000003', '1', '',
+  (102, 1, 'yezhu01', '业主张阿姨', '00', 'yezhu01@elevator.com', '13800000003', '1', '',
    '$2a$10$gyEgAsudVRZUUksP49d6geVDVNz6W5gWBdzlJ7ssKxdf07z1XwRIi',
    '0', '0', '127.0.0.1', sysdate(), sysdate(), 'admin', sysdate(), '阳光家园小区1号楼1单元业主');
 
 insert into sys_user
-  (user_id, dept_id, community_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
+  (user_id, community_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
    status, del_flag, login_ip, login_date, pwd_update_date, create_by, create_time, remark)
 values
-  (103, 103, 2, 'weixiu02', '维修员李师傅', '00', 'weixiu02@elevator.com', '13800000004', '1', '',
+  (103, 2, 'weixiu02', '维修员李师傅', '00', 'weixiu02@elevator.com', '13800000004', '1', '',
    '$2a$10$gyEgAsudVRZUUksP49d6geVDVNz6W5gWBdzlJ7ssKxdf07z1XwRIi',
    '0', '0', '127.0.0.1', sysdate(), sysdate(), 'admin', sysdate(), '哈尔滨华信机电设备有限公司，负责和平里小区');
 
 insert into sys_user
-  (user_id, dept_id, community_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
+  (user_id, community_id, user_name, nick_name, user_type, email, phonenumber, sex, avatar, password,
    status, del_flag, login_ip, login_date, pwd_update_date, create_by, create_time, remark)
 values
-  (104, 103, 3, 'weixiu03', '维修员赵师傅', '00', 'weixiu03@elevator.com', '13800000005', '1', '',
+  (104, 3, 'weixiu03', '维修员赵师傅', '00', 'weixiu03@elevator.com', '13800000005', '1', '',
    '$2a$10$gyEgAsudVRZUUksP49d6geVDVNz6W5gWBdzlJ7ssKxdf07z1XwRIi',
    '0', '0', '127.0.0.1', sysdate(), sysdate(), 'admin', sysdate(), '黑龙江广日电梯工程有限公司，负责铁路新村小区');
 insert into sys_user_role values(100, 3);

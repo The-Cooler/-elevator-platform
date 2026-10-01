@@ -363,7 +363,6 @@ public class AuthController
     {
         LoginUser loginUser = new LoginUser();
         loginUser.setUserId(user.getUserId());
-        loginUser.setDeptId(user.getDeptId());
         loginUser.setUser(user);
         java.util.Set<String> permissions = new java.util.HashSet<>();
         permissions.addAll(permissionService.getRolePermission(user));
