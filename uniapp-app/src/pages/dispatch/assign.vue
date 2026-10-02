@@ -84,7 +84,7 @@
 import { ref, onMounted } from 'vue'
 import { recommendWorker, assignOrder } from '../../api/order'
 import { getOrderDetail } from '../../api/repair'
-import { httpPut } from '../../utils/request'
+import { httpPut, fullUrl } from '../../utils/request'
 
 const orderId = ref('')
 const order = ref(null)
@@ -94,10 +94,7 @@ const selectedWorkerId = ref(null)
 const remark = ref('')
 const submitting = ref(false)
 
-const previewUrl = fileId => {
-  const base = import.meta.env.VITE_APP_BASE_API || '/dev-api'
-  return `${base}/common/file/preview/${fileId}`
-}
+const previewUrl = fileId => fullUrl(`/common/file/preview/${fileId}`)
 
 const previewEvidence = index => {
   uni.previewImage({

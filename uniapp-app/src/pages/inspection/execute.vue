@@ -116,7 +116,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { getInspection, listInspectionItems, clockIn, submitInspection, INSPECTION_BIZ_TYPE } from '../../api/maintain'
-import { uploadFile } from '../../utils/request'
+import { uploadFile, fullUrl } from '../../utils/request'
 import { MAINTAIN_TYPE_TEXT, RECORD_STATUS_TEXT, RECORD_STATUS_CLASS, formatDateTime } from '../../utils/dict'
 
 const recordId = ref('')
@@ -140,10 +140,7 @@ const normalCount = computed(() => itemList.value.filter(i => i.checkResult === 
 const abnormalCount = computed(() => itemList.value.filter(i => i.checkResult === 'abnormal').length)
 const naCount = computed(() => itemList.value.filter(i => i.checkResult === 'na').length)
 
-const previewUrl = fileId => {
-  const base = import.meta.env.VITE_APP_BASE_API || '/dev-api'
-  return `${base}/common/file/preview/${fileId}`
-}
+const previewUrl = fileId => fullUrl(`/common/file/preview/${fileId}`)
 
 const previewItemPhoto = fileId => {
   uni.previewImage({ urls: [previewUrl(fileId)] })

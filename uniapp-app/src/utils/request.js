@@ -3,8 +3,42 @@
  * 与后端 RuoYi 约定保持一致：token 放在 Authorization 头，返回值 { code, msg, data } 或 { code, msg, rows, total }
  */
 
-/** 后端接口地址，开发环境经 vite 代理转发 */
-const BASE_URL = import.meta.env.VITE_APP_BASE_API || '/dev-api'
+/**
+ * 后端服务地址
+ *
+ * 微信小程序的 uni.request 不经过浏览器，无法使用相对路径，也不支持 vite 的 proxy，
+ * 因此这里按运行环境区分：
+ *   H5   —— 走相对路径 /dev-api，由 vite.config.js 的 proxy 转发，避免跨域
+ *  小程序 —— 必须写完整地址，直接请求后端端口
+ *
+ * 注意：小程序端 import.meta.env 会被编译成空对象，配 .env 文件不生效，
+ * 所以地址写在这里，不依赖环境变量。
+ */
+
+/** 后端服务地址，换机器或换端口时只改这一处 */
+const SERVER_ORIGIN = 'http://localhost:8080'
+
+/** H5 开发环境经 vite 代理转发 */
+const H5_BASE_URL = '/dev-api'
+
+/** 当前是否为 H5 运行环境 */
+const isH5 = () => {
+  // #ifdef H5
+  return true
+  // #endif
+  // eslint-disable-next-line no-unreachable
+  return false
+}
+
+/** 接口请求基地址 */
+export const BASE_URL = isH5() ? H5_BASE_URL : SERVER_ORIGIN
+
+/**
+ * 拼接后端完整地址
+ * 供 uni.previewImage、uni.downloadFile 等需要绝对地址的场景使用
+ * @param {String} path 以 / 开头的接口路径
+ */
+export const fullUrl = path => (path && path.startsWith('http') ? path : SERVER_ORIGIN + path)
 
 const TOKEN_KEY = 'elevator-uniapp-token'
 const USER_KEY = 'elevator-uniapp-user'

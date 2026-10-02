@@ -137,6 +137,7 @@
 import { ref, onMounted } from 'vue'
 import { getOrderDetail, confirmOrder, appealOrder } from '../../api/repair'
 import { orderStatusText, orderStatusClass, FAULT_TYPE_TEXT, formatDateTime } from '../../utils/dict'
+import { fullUrl } from '../../utils/request'
 
 const orderId = ref('')
 const order = ref(null)
@@ -148,10 +149,7 @@ const appealReason = ref('')
 const faultTypeText = type => FAULT_TYPE_TEXT[type] || '故障'
 
 /** 文件预览地址 */
-const previewUrl = fileId => {
-  const base = import.meta.env.VITE_APP_BASE_API || '/dev-api'
-  return `${base}/common/file/preview/${fileId}`
-}
+const previewUrl = fileId => fullUrl(`/common/file/preview/${fileId}`)
 
 const previewEvidence = index => {
   uni.previewImage({

@@ -135,6 +135,7 @@ import {
   reportException
 } from '../../api/order'
 import { orderStatusText, orderStatusClass, FAULT_TYPE_TEXT, FAULT_REASON_TEXT, formatDateTime } from '../../utils/dict'
+import { fullUrl } from '../../utils/request'
 
 const orderId = ref('')
 const order = ref(null)
@@ -171,10 +172,7 @@ const canReportException = computed(() => {
   return ['accepted', 'arrived', 'repairing'].includes(order.value.orderStatus)
 })
 
-const previewUrl = fileId => {
-  const base = import.meta.env.VITE_APP_BASE_API || '/dev-api'
-  return `${base}/common/file/preview/${fileId}`
-}
+const previewUrl = fileId => fullUrl(`/common/file/preview/${fileId}`)
 
 const previewEvidence = index => {
   uni.previewImage({
