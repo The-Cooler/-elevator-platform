@@ -69,6 +69,18 @@ public class ElevatorHealth implements Serializable
     /** 健康评分 */
     private BigDecimal healthScore;
 
+    /**
+     * 维保完成率是否参与评分
+     * 统计周期内该电梯没有任何维保计划时，维保项无数据，不参与加权
+     */
+    private Boolean maintainApplicable;
+
+    /**
+     * 巡检合格率是否参与评分
+     * 统计周期内该电梯没有任何已完成的巡检记录时，巡检项无数据，不参与加权
+     */
+    private Boolean inspectApplicable;
+
     /** 健康等级（excellent优秀 good良好 fair一般 poor较差 danger危险） */
     private String healthLevel;
 
@@ -273,6 +285,26 @@ public class ElevatorHealth implements Serializable
     public void setHealthScore(BigDecimal healthScore)
     {
         this.healthScore = healthScore;
+    }
+
+    public Boolean getMaintainApplicable()
+    {
+        return maintainApplicable;
+    }
+
+    public void setMaintainApplicable(Boolean maintainApplicable)
+    {
+        this.maintainApplicable = maintainApplicable;
+    }
+
+    public Boolean getInspectApplicable()
+    {
+        return inspectApplicable;
+    }
+
+    public void setInspectApplicable(Boolean inspectApplicable)
+    {
+        this.inspectApplicable = inspectApplicable;
     }
 
     public String getHealthLevel()

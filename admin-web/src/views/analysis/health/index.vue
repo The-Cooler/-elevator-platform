@@ -93,12 +93,22 @@
         </el-table-column>
         <el-table-column label="维保完成率" align="center" width="140">
           <template #default="scope">
-            {{ scope.row.maintainRate }}%<span class="weight">×30%</span>
+            <template v-if="scope.row.maintainApplicable !== false">
+              {{ scope.row.maintainRate }}%<span class="weight">×30%</span>
+            </template>
+            <el-tooltip v-else content="统计周期内该电梯没有维保计划，维保完成率不参与评分" placement="top">
+              <span class="not-applicable">暂无数据 · 不计入</span>
+            </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column label="巡检合格率" align="center" width="140">
+        <el-table-column label="巡检合格率" align="center" width="150">
           <template #default="scope">
-            {{ scope.row.inspectRate }}%<span class="weight">×30%</span>
+            <template v-if="scope.row.inspectApplicable !== false">
+              {{ scope.row.inspectRate }}%<span class="weight">×30%</span>
+            </template>
+            <el-tooltip v-else content="统计周期内该电梯没有已完成的巡检记录，巡检合格率不参与评分" placement="top">
+              <span class="not-applicable">暂无数据 · 不计入</span>
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column label="维护建议" align="center" prop="suggestion" :show-overflow-tooltip="true" min-width="240" />
@@ -247,27 +257,35 @@ const { queryParams } = toRefs(data)
 const indicatorRows = computed(() => {
   if (!report.value) return []
   const r = report.value
+  const maintainApplicable = r.maintainApplicable !== false
+  const inspectApplicable = r.inspectApplicable !== false
+  // 无数据的指标不参与加权，剩余权重归一化，故此处权重按实际参与项折算
+  const totalWeight = 0.4 + (maintainApplicable ? 0.3 : 0) + (inspectApplicable ? 0.3 : 0)
+  const w = (base) => `${Math.round((base / totalWeight) * 100)}%`
   return [
     {
       name: '故障率',
       raw: `统计周期内故障 ${r.faultCount} 次`,
       score: r.faultScore,
-      weight: '40%',
-      weighted: (Number(r.faultScore || 0) * 0.4).toFixed(2)
+      weight: w(0.4),
+      applicable: true,
+      weighted: (Number(r.faultScore || 0) * 0.4 / totalWeight).toFixed(2)
     },
     {
       name: '维保完成率',
-      raw: `应执行 ${r.maintainDone} 次，实际执行 ${r.maintainFinish} 次`,
-      score: `${r.maintainRate}%`,
-      weight: '30%',
-      weighted: (Number(r.maintainRate || 0) * 0.3).toFixed(2)
+      raw: maintainApplicable ? `应执行 ${r.maintainDone} 次，实际执行 ${r.maintainFinish} 次` : '统计周期内无维保计划',
+      score: maintainApplicable ? `${r.maintainRate}%` : '暂无数据',
+      weight: maintainApplicable ? w(0.3) : '不计入',
+      applicable: maintainApplicable,
+      weighted: maintainApplicable ? (Number(r.maintainRate || 0) * 0.3 / totalWeight).toFixed(2) : '—'
     },
     {
       name: '巡检合格率',
-      raw: `检查项 ${r.inspectTotal} 项，正常 ${r.inspectNormal} 项`,
-      score: `${r.inspectRate}%`,
-      weight: '30%',
-      weighted: (Number(r.inspectRate || 0) * 0.3).toFixed(2)
+      raw: inspectApplicable ? `检查项 ${r.inspectTotal} 项，正常 ${r.inspectNormal} 项` : '统计周期内无已完成巡检',
+      score: inspectApplicable ? `${r.inspectRate}%` : '暂无数据',
+      weight: inspectApplicable ? w(0.3) : '不计入',
+      applicable: inspectApplicable,
+      weighted: inspectApplicable ? (Number(r.inspectRate || 0) * 0.3 / totalWeight).toFixed(2) : '—'
     }
   ]
 })
@@ -452,6 +470,12 @@ getList()
   margin-left: 4px;
   font-size: 12px;
   color: #c0c4cc;
+}
+.not-applicable {
+  font-size: 12px;
+  color: #909399;
+  border-bottom: 1px dashed #c0c4cc;
+  cursor: help;
 }
 .report-head {
   display: flex;

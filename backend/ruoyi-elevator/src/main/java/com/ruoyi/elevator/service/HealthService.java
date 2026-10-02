@@ -23,12 +23,17 @@ import java.util.Map;
  * 综合故障率、维保完成率、巡检合格率三项指标按权重加权计算健康评分
  *
  * 评分模型：
- *   健康评分 = 故障率得分 × 40% + 维保完成率得分 × 30% + 巡检合格率得分 × 30%
- *   三项指标各自折算为百分制得分后按权重相加，总分百分制
+ *   健康评分 = (故障率得分×40% + 维保完成率得分×30% + 巡检合格率得分×30%) / 参与项权重之和
+ *   三项指标各自折算为百分制得分后按权重加权，总分百分制
  *
  *   故障率得分：统计周期内无故障得 100 分，每发生 1 次故障扣 10 分，紧急故障额外扣 5 分，下限 0 分
  *   维保完成率得分：直接取维保完成率（百分比）
  *   巡检合格率得分：直接取巡检合格率（百分比）
+ *
+ *   无数据处理：统计周期内该电梯没有维保计划时，维保项无数据，不参与加权；
+ *   没有已完成的巡检记录时，巡检项无数据，不参与加权；剩余权重归一化。
+ *   故障项以「周期内故障次数」统计，无故障即为真实的 0 次，始终参与评分。
+ *   这样处理是为了避免把「暂无数据」当成「表现最差」，导致新装电梯被判为危险。
  *
  *   健康等级：90 分及以上优秀，80-89 良好，70-79 一般，60-69 较差，60 分以下危险
  *
@@ -159,11 +164,24 @@ public class HealthService
         BigDecimal maintainRate = rates.get(0);
         BigDecimal inspectRate = rates.get(1);
 
-        // 加权总分
-        BigDecimal healthScore = faultScore.multiply(WEIGHT_FAULT)
-                .add(maintainRate.multiply(WEIGHT_MAINTAIN))
-                .add(inspectRate.multiply(WEIGHT_INSPECT))
-                .setScale(2, RoundingMode.HALF_UP);
+        // 统计周期内没有维保计划、没有已完成巡检记录时，该指标属于「无数据」而非「得 0 分」。
+        // 此时该权重项不参与加权，剩余权重归一化，否则一台零故障的新电梯会被判成危险。
+        boolean maintainApplicable = hasMaintainPlan(elevatorId);
+        boolean inspectApplicable = hasFinishedInspection(elevatorId, beginTime, endTime);
+
+        BigDecimal weighted = faultScore.multiply(WEIGHT_FAULT);
+        BigDecimal totalWeight = WEIGHT_FAULT;
+        if (maintainApplicable)
+        {
+            weighted = weighted.add(maintainRate.multiply(WEIGHT_MAINTAIN));
+            totalWeight = totalWeight.add(WEIGHT_MAINTAIN);
+        }
+        if (inspectApplicable)
+        {
+            weighted = weighted.add(inspectRate.multiply(WEIGHT_INSPECT));
+            totalWeight = totalWeight.add(WEIGHT_INSPECT);
+        }
+        BigDecimal healthScore = weighted.divide(totalWeight, 2, RoundingMode.HALF_UP);
 
         Map<String, Object> planStat = maintainPlanMapper.selectPlanStatByElevator(elevatorId);
         Map<String, Object> inspectStat = inspectionService.selectInspectionStat(elevatorId, beginTime, endTime);
@@ -180,13 +198,33 @@ public class HealthService
         health.setMaintainFinish(toInt(planStat == null ? null : planStat.get("finishCount")));
         health.setMaintainRate(maintainRate);
         health.setMaintainScore(maintainRate);
+        health.setMaintainApplicable(maintainApplicable);
         health.setInspectTotal(toInt(inspectStat == null ? null : inspectStat.get("itemSum")));
         health.setInspectNormal(toInt(inspectStat == null ? null : inspectStat.get("normalSum")));
         health.setInspectRate(inspectRate);
         health.setInspectScore(inspectRate);
+        health.setInspectApplicable(inspectApplicable);
         health.setHealthScore(healthScore);
         health.setHealthLevel(levelOf(healthScore));
         return health;
+    }
+
+    /**
+     * 统计周期内该电梯是否存在维保计划
+     */
+    private boolean hasMaintainPlan(Long elevatorId)
+    {
+        Map<String, Object> planStat = maintainPlanMapper.selectPlanStatByElevator(elevatorId);
+        return toInt(planStat == null ? null : planStat.get("expectCount")) > 0;
+    }
+
+    /**
+     * 统计周期内该电梯是否存在已完成的巡检记录
+     */
+    private boolean hasFinishedInspection(Long elevatorId, String beginTime, String endTime)
+    {
+        Map<String, Object> inspectStat = inspectionService.selectInspectionStat(elevatorId, beginTime, endTime);
+        return toInt(inspectStat == null ? null : inspectStat.get("itemSum")) > 0;
     }
 
     /**
@@ -275,12 +313,12 @@ public class HealthService
     private String buildSuggestion(ElevatorHealth health)
     {
         String level = health.getHealthLevel();
+        StringBuilder sb = new StringBuilder();
         if ("excellent".equals(level) || "good".equals(level))
         {
-            return "电梯运行状态良好，按既定维保计划执行即可。";
+            sb.append("电梯运行状态良好。");
         }
-        StringBuilder sb = new StringBuilder();
-        if ("fair".equals(level))
+        else if ("fair".equals(level))
         {
             sb.append("电梯健康状况一般，建议加强日常巡检。");
         }
@@ -296,11 +334,20 @@ public class HealthService
         {
             sb.append("该电梯统计周期内故障").append(health.getFaultCount()).append("次，故障频次偏高。");
         }
-        if (health.getMaintainRate() != null && health.getMaintainRate().compareTo(BigDecimal.valueOf(80)) < 0)
+        // 无数据的指标不计入评分，也不给扣分建议，但要提示尚未开展
+        if (Boolean.FALSE.equals(health.getMaintainApplicable()))
+        {
+            sb.append("该电梯尚未制定维保计划，维保完成率未纳入本次评分，请尽快制定维保计划。");
+        }
+        else if (health.getMaintainRate() != null && health.getMaintainRate().compareTo(BigDecimal.valueOf(80)) < 0)
         {
             sb.append("维保完成率不足 80%，存在漏保风险。");
         }
-        if (health.getInspectRate() != null && health.getInspectRate().compareTo(BigDecimal.valueOf(80)) < 0)
+        if (Boolean.FALSE.equals(health.getInspectApplicable()))
+        {
+            sb.append("该电梯统计周期内无巡检记录，巡检合格率未纳入本次评分。");
+        }
+        else if (health.getInspectRate() != null && health.getInspectRate().compareTo(BigDecimal.valueOf(80)) < 0)
         {
             sb.append("巡检合格率不足 80%，检查项异常较多。");
         }

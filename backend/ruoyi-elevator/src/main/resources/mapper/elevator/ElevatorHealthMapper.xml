@@ -21,6 +21,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="inspectNormal"  column="inspect_normal"  />
         <result property="inspectRate"    column="inspect_rate"    />
         <result property="inspectScore"   column="inspect_score"   />
+        <result property="maintainApplicable" column="maintain_applicable" />
+        <result property="inspectApplicable"  column="inspect_applicable"  />
         <result property="healthScore"    column="health_score"    />
         <result property="healthLevel"    column="health_level"    />
         <result property="calcTime"       column="calc_time"       />
@@ -36,7 +38,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select h.health_id, h.elevator_id, h.stat_period, h.stat_start_date, h.stat_end_date,
                h.fault_count, h.fault_rate, h.fault_score, h.maintain_done, h.maintain_finish,
                h.maintain_rate, h.maintain_score, h.inspect_total, h.inspect_normal,
-               h.inspect_rate, h.inspect_score, h.health_score, h.health_level, h.calc_time,
+               h.inspect_rate, h.inspect_score, h.maintain_applicable, h.inspect_applicable,
+               h.health_score, h.health_level, h.calc_time,
                e.elevator_code as elevator_code,
                e.brand as brand,
                e.unit_no as unit_no,
@@ -85,11 +88,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             elevator_id, stat_period, stat_start_date, stat_end_date, fault_count,
             fault_rate, fault_score, maintain_done, maintain_finish, maintain_rate, maintain_score,
             inspect_total, inspect_normal, inspect_rate, inspect_score,
+            maintain_applicable, inspect_applicable,
             health_score, health_level, calc_time
         ) values (
             #{elevatorId}, #{statPeriod}, #{statStartDate}, #{statEndDate}, #{faultCount},
             #{faultRate}, #{faultScore}, #{maintainDone}, #{maintainFinish}, #{maintainRate}, #{maintainScore},
             #{inspectTotal}, #{inspectNormal}, #{inspectRate}, #{inspectScore},
+            #{maintainApplicable}, #{inspectApplicable},
             #{healthScore}, #{healthLevel}, sysdate()
         )
     </insert>
@@ -108,6 +113,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="inspectNormal != null">inspect_normal = #{inspectNormal},</if>
             <if test="inspectRate != null">inspect_rate = #{inspectRate},</if>
             <if test="inspectScore != null">inspect_score = #{inspectScore},</if>
+            <if test="maintainApplicable != null">maintain_applicable = #{maintainApplicable},</if>
+            <if test="inspectApplicable != null">inspect_applicable = #{inspectApplicable},</if>
             <if test="healthScore != null">health_score = #{healthScore},</if>
             <if test="healthLevel != null and healthLevel != ''">health_level = #{healthLevel},</if>
             calc_time = sysdate()
