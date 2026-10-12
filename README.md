@@ -2,26 +2,63 @@
 
 本科毕业设计项目。面向业主、物业、维修员、管理员四类角色，覆盖电梯故障报修、工单调度、预防性维保与数据分析预警的完整业务闭环。
 
-## 一、项目结构
+## 一、源码仓库
+
+本项目按前后端分离拆分为三个独立仓库，本仓库仅存放交付说明。
+
+| 仓库 | 说明 |
+| --- | --- |
+| [elevator-backend](https://github.com/The-Cooler/elevator-backend) | 后端服务（SpringBoot），含数据库建表与初始数据脚本 |
+| [elevator-admin](https://github.com/The-Cooler/elevator-admin) | 管理端前端（Vue3），面向管理员 |
+| [elevator-portal](https://github.com/The-Cooler/elevator-portal) | 用户端前端（Vue3），面向业主、物业、维修员 |
+
+三个仓库的默认分支均为 `main`。
+
+## 二、目录结构
+
+三个工程仓库的内部结构如下。
 
 ```
-项目/
-├── backend/          后端服务（SpringBoot）
-│   ├── ruoyi-admin/      启动模块与配置文件
-│   ├── ruoyi-framework/  框架配置（安全、拦截器）
-│   ├── ruoyi-system/     若依系统模块
-│   ├── ruoyi-common/     公共工具
-│   ├── ruoyi-quartz/     定时任务
-│   ├── ruoyi-elevator/   电梯业务模块（本项目主要代码）
-│   └── sql/
-│       ├── elevator_schema.sql   建表脚本（只含结构，不含数据）
-│       └── elevator_init.sql     建表脚本 + 演示数据
-├── admin-web/        管理端前端（Vue3）
-├── web-portal/       用户端前端（Vue3，业主/物业/维修员）
-└── docs/             开发文档
+elevator-backend/
+├── ruoyi-admin/        启动模块与配置文件
+│   └── src/main/resources/
+│       ├── application.yml          主配置（端口、令牌有效期）
+│       └── application-druid.yml    数据源配置（数据库账号密码）
+├── ruoyi-framework/    框架配置（安全策略、拦截器）
+├── ruoyi-system/       若依系统模块（用户、角色、菜单、字典）
+├── ruoyi-common/       公共工具
+├── ruoyi-quartz/       定时任务
+├── ruoyi-elevator/     电梯业务模块（本项目主要代码）
+│   ├── controller/     接口层
+│   ├── service/        业务层
+│   ├── mapper/         数据访问层
+│   ├── domain/         实体类
+│   └── util/           业务工具（状态机、地理计算、登录用户）
+└── sql/
+    ├── elevator_schema.sql   建表脚本，43 张表，不含数据
+    └── elevator_data.sql     初始数据，21 张表共 890 条
+
+elevator-admin/
+├── src/
+│   ├── api/            接口封装
+│   ├── views/          页面（按论文模块划分目录）
+│   ├── router/         路由与角色守卫
+│   └── utils/          请求封装、高德地图加载
+├── .env.development    开发环境配置（接口地址、高德密钥）
+└── vite.config.js      构建配置（开发端口 80）
+
+elevator-portal/
+├── src/
+│   ├── api/            接口封装
+│   ├── views/          页面，按 owner / property / worker 分目录
+│   ├── router/         路由与角色守卫
+│   ├── config/menus.js 各角色的菜单配置
+│   └── utils/          请求封装、定位与逆地理编码
+├── .env.development    开发环境配置（接口地址、高德密钥）
+└── vite.config.js      构建配置（开发端口 81）
 ```
 
-## 二、技术栈
+## 三、技术栈
 
 | 分层 | 技术 |
 | --- | --- |
@@ -35,7 +72,7 @@
 
 后端基础工程基于 RuoYi-Vue（springboot3 分支）改造，管理端前端基于 RuoYi-Vue3 改造。
 
-## 三、环境要求
+## 四、环境要求
 
 | 依赖 | 版本 |
 | --- | --- |
@@ -45,7 +82,7 @@
 | MySQL | 8.0 |
 | Redis | 5.0 及以上 |
 
-## 四、启动步骤
+## 五、启动步骤
 
 ### 1. 建库
 
@@ -55,13 +92,13 @@ mysql -uroot -p < backend/sql/elevator_schema.sql
 
 脚本会自动创建 `elevator` 库并建好全部 43 张表（含 Quartz 调度表），不含任何数据。
 
-如需带演示数据的完整初始化（会清空并重建 `elevator` 库的全部表）：
+如需连初始数据一起导入（账号、字典、菜单权限、小区楼栋电梯、演示工单等）：
 
 ```bash
-mysql -uroot -p < backend/sql/elevator_init.sql
+mysql -uroot -p elevator < backend/sql/elevator_data.sql
 ```
 
-注意：`elevator_init.sql` 内部自带 `CREATE DATABASE` 与 `USE`，并会对 43 张表逐一 `drop table if exists` 后重建，执行前请确认目标库中没有需要保留的数据。
+`elevator_data.sql` 只含 `INSERT`，每个表在插入前会先清空，可重复执行。
 
 ### 2. 启动 Redis
 
@@ -132,7 +169,7 @@ npm run dev
 
 打包：`npm run build`
 
-## 五、演示账号
+## 六、演示账号
 
 管理端（http://localhost:80）
 
@@ -150,9 +187,9 @@ npm run dev
 | weixiu03 | 123456 | 维修员 | 铁路新村小区 |
 | yezhu01 | 123456 | 业主 | 阳光家园小区 |
 
-若用 `elevator_schema.sql` 建库（无数据），需先自行录入小区、楼栋、电梯与账号，或改用 `elevator_init.sql`。
+若只跑了 `elevator_schema.sql`（无数据），需按第五节第 1 步补跑 `elevator_data.sql`，否则无账号可登录。
 
-## 六、功能模块
+## 七、功能模块
 
 系统划分为 5 个模块、17 个子功能。
 
@@ -198,7 +235,7 @@ npm run dev
 | 超期预警监控 | 工单超时与维保临期自动预警，预警规则配置，已读未读处理 | 物业 |
 | 电梯健康档案生成 | 综合故障率、维保完成率、巡检合格率生成健康评分，支持 PDF 与 Excel 导出 | 物业、管理员 |
 
-## 七、业务流程
+## 八、业务流程
 
 主流程（工单状态流转）：
 
@@ -216,7 +253,7 @@ npm run dev
 - 业主对维修结果不满意，提交申诉，工单进入返工
 - 工单超过预设时限未流转，系统自动生成预警
 
-## 八、角色与入口
+## 九、角色与入口
 
 | 角色 | 使用端 | 主要操作 |
 | --- | --- | --- |
@@ -225,7 +262,7 @@ npm run dev
 | 维修员 | 用户端 | 接单、记录维修过程、执行巡检任务 |
 | 管理员 | 管理端 | 维护基础信息、配置角色权限、管理用户、查看全量数据 |
 
-## 九、数据库
+## 十、数据库
 
 共 43 张表。
 
@@ -237,7 +274,7 @@ npm run dev
 
 项目已移除若依自带的部门表、岗位表与代码生成器表。
 
-## 十、定时任务
+## 十一、定时任务
 
 业务定时任务共 3 个：
 
@@ -249,7 +286,7 @@ npm run dev
 
 另有 3 条若依框架自带的演示任务（`ryTask.ryNoParams` 等），不影响业务，可在管理端「定时任务」页停用或删除。
 
-## 十一、权限与数据隔离
+## 十二、权限与数据隔离
 
 - 后端接口通过 `@PreAuthorize` 校验权限标识，权限数据存于 `sys_menu` 表
 - 数据权限按所属小区隔离：非管理员角色的工单、电梯等数据自动限定在本人所属小区内
@@ -257,10 +294,10 @@ npm run dev
 - 维修员只能查看派给本人的工单
 - 前端路由另有角色校验，但仅作界面便利，真正的权限控制在后端
 
-## 十二、注意事项
+## 十三、注意事项
 
 1. **高德密钥**：仓库中的 `.env` 文件里密钥为占位符 `xx`，需自行申请后填入，否则地图与定位功能不可用。
 2. **数据库账号**：`application-druid.yml` 中默认为 `root/root`，请改为实际密码。
 3. **Redis**：后端强依赖 Redis，用于登录令牌、验证码与缓存，未启动时后端无法正常登录。
 4. **定位功能**：浏览器仅在 `localhost` 与 HTTPS 下允许获取地理位置。部署到局域网 IP 时，维修员到场打卡与巡检打卡的自动定位不可用，需手动处理。
-5. **建库脚本**：`elevator_init.sql` 会对 `elevator` 库的表执行 `drop table if exists` 后重建，请勿在存有数据的库上直接执行。
+5. **建库脚本**：`elevator_schema.sql` 只建表、不含数据，可安全重复执行；`elevator_data.sql` 会先清空各表再插入，库里已有数据时会被覆盖。
